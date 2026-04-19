@@ -164,7 +164,8 @@
   <!-- TITEL -->
   <div class="screen active" id="title">
     <h1>💣 Jansen Familie Bom</h1>
-    <p>Voor Melvin, Annette, Nathalie, Danny, Svea & Robbin</p>
+    <p>Voor Melvin, Annette, Nathalie, Danny, Svea 🇩🇪 & Robbin</p>
+    <p style="font-size:14px;opacity:0.8">Svea spreekt Duits — Robbin vertaalt 🙌</p>
     <div class="rules">
       <p style="color:var(--fg);font-weight:700;margin:0 0 8px">Zo speel je:</p>
       <ul>
@@ -244,6 +245,12 @@ const CATEGORIES = [
   { theme: "Melvin", emoji: "🏆", prompt: "Noem een F1-wereldkampioen" },
   { theme: "Melvin", emoji: "🌍", prompt: "Noem een land waar F1 wordt gereden" },
   { theme: "Melvin", emoji: "🔧", prompt: "Noem een onderdeel van een F1-auto" },
+  { theme: "Melvin", emoji: "🇳🇱", prompt: "Noem een Nederlandse F1-coureur" },
+  { theme: "Melvin", emoji: "📢", prompt: "Noem een F1-commentator of -presentator" },
+  { theme: "Melvin", emoji: "⛽", prompt: "Noem een F1-term (pit-stop, safety car, ...)" },
+  { theme: "Melvin", emoji: "💼", prompt: "Noem een sponsor op een F1-auto" },
+  { theme: "Melvin", emoji: "🛠️", prompt: "Noem een F1-team-principal of -directeur" },
+  { theme: "Melvin", emoji: "🗣️", prompt: "Noem iets wat Melvin roept als Max wint" },
 
   // Annette — shoppen
   { theme: "Annette", emoji: "🛍️", prompt: "Noem een Nederlandse winkelketen" },
@@ -252,6 +259,12 @@ const CATEGORIES = [
   { theme: "Annette", emoji: "💐", prompt: "Noem een parfum- of geurmerk" },
   { theme: "Annette", emoji: "🏬", prompt: "Noem een winkelstraat in Nederland" },
   { theme: "Annette", emoji: "💳", prompt: "Noem iets dat Annette wél koopt en Melvin niet" },
+  { theme: "Annette", emoji: "👠", prompt: "Noem een schoenenmerk" },
+  { theme: "Annette", emoji: "💄", prompt: "Noem een make-up-merk" },
+  { theme: "Annette", emoji: "🛒", prompt: "Noem een supermarkt-huismerk" },
+  { theme: "Annette", emoji: "💻", prompt: "Noem een online-webshop" },
+  { theme: "Annette", emoji: "🏷️", prompt: "Noem een outletcenter of factory outlet" },
+  { theme: "Annette", emoji: "🎁", prompt: "Noem een leuk cadeau onder de 25 euro" },
 
   // Robbin — achtbanen & auto's
   { theme: "Robbin", emoji: "🎢", prompt: "Noem een achtbaan" },
@@ -260,6 +273,12 @@ const CATEGORIES = [
   { theme: "Robbin", emoji: "🏎️", prompt: "Noem een sportwagen" },
   { theme: "Robbin", emoji: "🧚", prompt: "Noem iets uit de Efteling" },
   { theme: "Robbin", emoji: "⛽", prompt: "Noem iets dat bij een road-trip hoort" },
+  { theme: "Robbin", emoji: "🌍", prompt: "Noem een pretpark in het buitenland" },
+  { theme: "Robbin", emoji: "🔋", prompt: "Noem een elektrische auto of EV-merk" },
+  { theme: "Robbin", emoji: "🎬", prompt: "Noem een auto uit een film of serie" },
+  { theme: "Robbin", emoji: "🎢", prompt: "Noem een achtbaan in de Efteling" },
+  { theme: "Robbin", emoji: "🔩", prompt: "Noem een auto-onderdeel" },
+  { theme: "Robbin", emoji: "🥤", prompt: "Noem iets dat je koopt bij een tankstation" },
 
   // Svea — wandelen & natuur
   { theme: "Svea", emoji: "🥾", prompt: "Noem een Nederlands natuurgebied" },
@@ -268,6 +287,12 @@ const CATEGORIES = [
   { theme: "Svea", emoji: "🎒", prompt: "Noem iets dat je meeneemt op een wandeling" },
   { theme: "Svea", emoji: "🌲", prompt: "Noem een Europees nationaal park" },
   { theme: "Svea", emoji: "🌸", prompt: "Noem een bloem of plant" },
+  { theme: "Svea", emoji: "🗺️", prompt: "Noem een wandelroute of LAW in Nederland" },
+  { theme: "Svea", emoji: "⛰️", prompt: "Noem een berg in Europa" },
+  { theme: "Svea", emoji: "🌊", prompt: "Noem een rivier" },
+  { theme: "Svea", emoji: "🦜", prompt: "Noem een vogel" },
+  { theme: "Svea", emoji: "🧥", prompt: "Noem een outdoor- of wandelmerk" },
+  { theme: "Svea", emoji: "🍂", prompt: "Noem een natuurverschijnsel (bv. regenboog)" },
 
   // Danny & Nathalie — games
   { theme: "Danny & Nathalie", emoji: "🎮", prompt: "Noem een video game" },
@@ -276,6 +301,10 @@ const CATEGORIES = [
   { theme: "Danny & Nathalie", emoji: "⚡", prompt: "Noem een Pokémon" },
   { theme: "Danny & Nathalie", emoji: "🏢", prompt: "Noem een game-studio of -uitgever" },
   { theme: "Danny & Nathalie", emoji: "🎯", prompt: "Noem een shooter-game" },
+  { theme: "Danny & Nathalie", emoji: "🏰", prompt: "Noem een Zelda-titel of -personage" },
+  { theme: "Danny & Nathalie", emoji: "👾", prompt: "Noem een retro-game (ouder dan 2000)" },
+  { theme: "Danny & Nathalie", emoji: "🌐", prompt: "Noem een online-multiplayerspel" },
+  { theme: "Danny & Nathalie", emoji: "🏷️", prompt: "Noem een game-genre" },
 
   // Nathalie — films
   { theme: "Nathalie", emoji: "🏰", prompt: "Noem een Disney-film" },
@@ -284,20 +313,136 @@ const CATEGORIES = [
   { theme: "Nathalie", emoji: "👻", prompt: "Noem een horror-film" },
   { theme: "Nathalie", emoji: "🏆", prompt: "Noem een Oscar-winnende film" },
   { theme: "Nathalie", emoji: "🎬", prompt: "Noem een film uit de jaren '90" },
+  { theme: "Nathalie", emoji: "💡", prompt: "Noem een Pixar-film" },
+  { theme: "Nathalie", emoji: "✏️", prompt: "Noem een animatiefilm (niet Disney/Pixar)" },
+  { theme: "Nathalie", emoji: "🚀", prompt: "Noem een sci-fi film" },
+  { theme: "Nathalie", emoji: "🌊", prompt: "Noem een film met Leonardo DiCaprio" },
+  { theme: "Nathalie", emoji: "💘", prompt: "Noem een romantische comedy" },
+  { theme: "Nathalie", emoji: "🎥", prompt: "Noem een bekende filmregisseur" },
 
   // Danny — coding
   { theme: "Danny", emoji: "💻", prompt: "Noem een programmeertaal" },
   { theme: "Danny", emoji: "🏢", prompt: "Noem een tech-bedrijf" },
   { theme: "Danny", emoji: "📱", prompt: "Noem een app op je telefoon" },
   { theme: "Danny", emoji: "🤖", prompt: "Noem iets wat je met AI kunt doen" },
+  { theme: "Danny", emoji: "📲", prompt: "Noem een sociaal-media-platform" },
+  { theme: "Danny", emoji: "🎧", prompt: "Noem een streaming-dienst" },
+  { theme: "Danny", emoji: "🔌", prompt: "Noem een gadget of slim apparaat" },
+  { theme: "Danny", emoji: "🔒", prompt: "Noem iets waarvoor je een wachtwoord hebt" },
+
+  // Muziek
+  { theme: "Muziek", emoji: "🇳🇱", prompt: "Noem een Nederlandse artiest" },
+  { theme: "Muziek", emoji: "🌟", prompt: "Noem een internationale popartiest" },
+  { theme: "Muziek", emoji: "🎸", prompt: "Noem een (klassieke) band" },
+  { theme: "Muziek", emoji: "🎹", prompt: "Noem een muziekinstrument" },
+  { theme: "Muziek", emoji: "🕺", prompt: "Noem een nummer dat op elk feest gedraaid wordt" },
+  { theme: "Muziek", emoji: "🎤", prompt: "Noem een rapper" },
+  { theme: "Muziek", emoji: "🎧", prompt: "Noem een DJ" },
+  { theme: "Muziek", emoji: "🎪", prompt: "Noem een muziekfestival" },
+  { theme: "Muziek", emoji: "🎼", prompt: "Noem een nummer van ABBA, Queen of de Beatles" },
+  { theme: "Muziek", emoji: "🪕", prompt: "Noem een typisch Nederlands meezing-liedje" },
+
+  // Eten & drinken
+  { theme: "Eten & drinken", emoji: "🧀", prompt: "Noem een typisch Nederlands gerecht" },
+  { theme: "Eten & drinken", emoji: "🥪", prompt: "Noem iets wat je op brood doet" },
+  { theme: "Eten & drinken", emoji: "🍰", prompt: "Noem een zoete lekkernij" },
+  { theme: "Eten & drinken", emoji: "🍗", prompt: "Noem een gerecht met kip" },
+  { theme: "Eten & drinken", emoji: "🎂", prompt: "Noem iets dat je bij een verjaardag eet" },
+  { theme: "Eten & drinken", emoji: "🥤", prompt: "Noem een frisdrank of non-alcoholische drank" },
+  { theme: "Eten & drinken", emoji: "🍷", prompt: "Noem een alcoholische drank" },
+  { theme: "Eten & drinken", emoji: "🥦", prompt: "Noem een groente" },
+  { theme: "Eten & drinken", emoji: "🍕", prompt: "Noem een Italiaans gerecht" },
+  { theme: "Eten & drinken", emoji: "🍟", prompt: "Noem een snack uit de snackbar" },
+  { theme: "Eten & drinken", emoji: "🌶️", prompt: "Noem een kruid of specerij" },
+  { theme: "Eten & drinken", emoji: "🍫", prompt: "Noem een chocolade- of snoepmerk" },
+
+  // Sport
+  { theme: "Sport", emoji: "🏅", prompt: "Noem een sport" },
+  { theme: "Sport", emoji: "⚽", prompt: "Noem een Nederlandse voetbalclub" },
+  { theme: "Sport", emoji: "🥇", prompt: "Noem een Olympische sport" },
+  { theme: "Sport", emoji: "🏃", prompt: "Noem een bekende sporter" },
+  { theme: "Sport", emoji: "⛷️", prompt: "Noem een wintersport" },
+  { theme: "Sport", emoji: "🏐", prompt: "Noem een teamsport" },
+  { theme: "Sport", emoji: "🎾", prompt: "Noem een sporter met een racket" },
+  { theme: "Sport", emoji: "🏆", prompt: "Noem een bekende sportcompetitie of toernooi" },
+
+  // Reizen
+  { theme: "Reizen", emoji: "🌍", prompt: "Noem een land in Europa" },
+  { theme: "Reizen", emoji: "🏙️", prompt: "Noem een hoofdstad" },
+  { theme: "Reizen", emoji: "🏝️", prompt: "Noem een eiland" },
+  { theme: "Reizen", emoji: "✈️", prompt: "Noem een vliegmaatschappij" },
+  { theme: "Reizen", emoji: "📱", prompt: "Noem een reis- of hotel-app" },
+  { theme: "Reizen", emoji: "🏖️", prompt: "Noem een typische vakantie-activiteit" },
+  { theme: "Reizen", emoji: "🌆", prompt: "Noem een Mediterraanse stad" },
+  { theme: "Reizen", emoji: "🧳", prompt: "Noem iets dat altijd in je koffer zit" },
+  { theme: "Reizen", emoji: "🏕️", prompt: "Noem een type overnachting (camping, b&b, ...)" },
+
+  // Nederland
+  { theme: "Nederland", emoji: "🗺️", prompt: "Noem een Nederlandse provincie" },
+  { theme: "Nederland", emoji: "🏙️", prompt: "Noem een Nederlandse stad" },
+  { theme: "Nederland", emoji: "👑", prompt: "Noem een lid van het Nederlandse Koningshuis" },
+  { theme: "Nederland", emoji: "🧀", prompt: "Noem iets typisch Nederlands" },
+  { theme: "Nederland", emoji: "💡", prompt: "Noem een Nederlandse uitvinding" },
+  { theme: "Nederland", emoji: "⭐", prompt: "Noem een bekende Nederlander (levend of dood)" },
+  { theme: "Nederland", emoji: "🍺", prompt: "Noem een Nederlands biermerk" },
+  { theme: "Nederland", emoji: "🎉", prompt: "Noem een Nederlandse feestdag of -traditie" },
+  { theme: "Nederland", emoji: "🚲", prompt: "Noem iets wat je op de fiets kunt doen" },
+
+  // TV & Series
+  { theme: "TV & Series", emoji: "📺", prompt: "Noem een Netflix-serie" },
+  { theme: "TV & Series", emoji: "🇳🇱", prompt: "Noem een Nederlandse TV-show" },
+  { theme: "TV & Series", emoji: "🎬", prompt: "Noem een realityshow" },
+  { theme: "TV & Series", emoji: "🎨", prompt: "Noem een tekenfilm voor kinderen" },
+  { theme: "TV & Series", emoji: "🎙️", prompt: "Noem een Nederlandse TV-presentator" },
+  { theme: "TV & Series", emoji: "🌟", prompt: "Noem een Studio 100-personage of -programma" },
+  { theme: "TV & Series", emoji: "❓", prompt: "Noem een quiz-programma" },
+  { theme: "TV & Series", emoji: "📡", prompt: "Noem een serie waar iedereen over praat" },
+
+  // Dieren
+  { theme: "Dieren", emoji: "🐶", prompt: "Noem een huisdier" },
+  { theme: "Dieren", emoji: "🐬", prompt: "Noem een zeedier" },
+  { theme: "Dieren", emoji: "🦋", prompt: "Noem een insect" },
+  { theme: "Dieren", emoji: "🦁", prompt: "Noem een dier uit de dierentuin" },
+  { theme: "Dieren", emoji: "🐴", prompt: "Noem een boerderijdier" },
+  { theme: "Dieren", emoji: "🦅", prompt: "Noem een dier dat kan vliegen" },
+  { theme: "Dieren", emoji: "🐺", prompt: "Noem een roofdier" },
+  { theme: "Dieren", emoji: "🎨", prompt: "Noem een dier uit een tekenfilm" },
+
+  // Willekeurig
+  { theme: "Willekeurig", emoji: "🧰", prompt: "Noem iets in een gereedschapskist" },
+  { theme: "Willekeurig", emoji: "🧊", prompt: "Noem iets in de koelkast" },
+  { theme: "Willekeurig", emoji: "🛞", prompt: "Noem iets met wielen" },
+  { theme: "Willekeurig", emoji: "🔴", prompt: "Noem iets roods" },
+  { theme: "Willekeurig", emoji: "👷", prompt: "Noem een beroep" },
+  { theme: "Willekeurig", emoji: "🛁", prompt: "Noem iets in de badkamer" },
+  { theme: "Willekeurig", emoji: "🔤", prompt: "Noem iets dat begint met een S" },
+  { theme: "Willekeurig", emoji: "🎒", prompt: "Noem iets dat in een schooltas zit" },
+  { theme: "Willekeurig", emoji: "☀️", prompt: "Noem iets geels" },
+  { theme: "Willekeurig", emoji: "🎨", prompt: "Noem een hobby" },
+
+  // Duitsland — voor Svea 🇩🇪
+  { theme: "Duitsland 🇩🇪", emoji: "🏰", prompt: "Noem een Duitse stad (antwoord mag in Duits!)" },
+  { theme: "Duitsland 🇩🇪", emoji: "🚗", prompt: "Noem een Duits automerk" },
+  { theme: "Duitsland 🇩🇪", emoji: "⚽", prompt: "Noem een Duitse voetbalclub of speler" },
+  { theme: "Duitsland 🇩🇪", emoji: "🥨", prompt: "Noem een Duits gerecht of drankje" },
+  { theme: "Duitsland 🇩🇪", emoji: "🎶", prompt: "Noem een Duitse band, artiest of lied" },
+  { theme: "Duitsland 🇩🇪", emoji: "🎬", prompt: "Noem een Duitse film of serie" },
+  { theme: "Duitsland 🇩🇪", emoji: "🗣️", prompt: "Noem een Duits woord dat iedereen kent" },
+  { theme: "Duitsland 🇩🇪", emoji: "🎉", prompt: "Noem een Duitse traditie of feestdag" },
 
   // Jansen-huis
   { theme: "Jansen-huis", emoji: "🍖", prompt: "Noem iets wat bij een Jansen-BBQ op tafel komt" },
   { theme: "Jansen-huis", emoji: "✈️", prompt: "Noem een plek waar jullie op vakantie zijn geweest" },
   { theme: "Jansen-huis", emoji: "💬", prompt: "Noem iets dat Melvin altijd zegt" },
   { theme: "Jansen-huis", emoji: "🏘️", prompt: "Noem een dorp in de buurt van Nieuw-Vennep" },
-  { theme: "Jansen-huis", emoji: "🧀", prompt: "Noem een typisch Nederlands gerecht" },
-  { theme: "Jansen-huis", emoji: "🎂", prompt: "Noem iets dat je bij een verjaardag eet" },
+  { theme: "Jansen-huis", emoji: "👩‍🍳", prompt: "Noem iets dat Annette het best kookt" },
+  { theme: "Jansen-huis", emoji: "🎄", prompt: "Noem een traditie bij jullie thuis" },
+  { theme: "Jansen-huis", emoji: "📸", prompt: "Noem iets dat op een Jansen-vakantiefoto staat" },
+  { theme: "Jansen-huis", emoji: "🤷", prompt: "Noem iets dat Nathalie en Robbin vroeger samen deden" },
+  { theme: "Jansen-huis", emoji: "🤝", prompt: "Noem iets wat Danny leerde bij de Jansens" },
+  { theme: "Jansen-huis", emoji: "💞", prompt: "Noem iets wat Svea aan Nederland moest wennen" },
+  { theme: "Jansen-huis", emoji: "🎤", prompt: "Noem iets waar Melvin het het langst over kan hebben" },
+  { theme: "Jansen-huis", emoji: "🛋️", prompt: "Noem een typisch Jansen-zondag-activiteit" },
 ];
 
 const TWISTS = [
@@ -453,11 +598,16 @@ function pickCategory() {
   return CATEGORIES[idx];
 }
 
+const FAMILY_THEMES = new Set(["Melvin","Annette","Robbin","Svea","Nathalie","Danny","Danny & Nathalie"]);
+function themeLabel(theme) {
+  return FAMILY_THEMES.has(theme) ? `${theme}'s thema` : theme;
+}
+
 function renderCategory() {
   const cat = pickCategory();
   document.getElementById("cat-emoji").textContent = cat.emoji;
   document.getElementById("cat-text").textContent = cat.prompt;
-  document.getElementById("cat-theme").textContent = cat.theme + "'s thema";
+  document.getElementById("cat-theme").textContent = themeLabel(cat.theme);
 }
 
 function renderTopbar() {
