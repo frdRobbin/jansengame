@@ -468,7 +468,7 @@ function startRound() {
   const fuse = document.getElementById("fuse");
   if (fuse) fuse.classList.remove("urgent", "tick");
 
-  const duration = 15000 + Math.floor(Math.random() * 15000); // 15-30 s
+  const duration = 30000 + Math.floor(Math.random() * 30000); // 30-60 s
   bombDeadline = Date.now() + duration;
 
   const doTick = () => {
