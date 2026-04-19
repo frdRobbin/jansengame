@@ -93,6 +93,32 @@
   .fuse { font-size: 22px; display: inline-block; transform: scale(1); transition: transform 0.06s ease-out, filter 0.06s ease-out; }
   .fuse.tick { transform: scale(1.6); filter: drop-shadow(0 0 6px var(--accent)); }
   .fuse.urgent { color: var(--danger); }
+  .bonus-badge {
+    background: var(--accent); color: #111; padding: 4px 10px; border-radius: 999px;
+    font-weight: 800; font-size: 13px; letter-spacing: 0.05em;
+    display: none;
+  }
+  .bonus-badge.active { display: inline-block; animation: bonus-bounce 0.8s infinite; }
+  @keyframes bonus-bounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+  /* TWIST */
+  #twist {
+    background: linear-gradient(135deg, #6a13d6 0%, #ff2e88 100%);
+    text-align: center;
+    animation: twist-in 0.25s ease-out;
+  }
+  @keyframes twist-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .twist-banner {
+    font-size: 16px; letter-spacing: 0.4em; color: #fff; opacity: 0.9;
+    text-transform: uppercase; font-weight: 800;
+  }
+  .twist-emoji { font-size: 110px; line-height: 1; margin: 14px 0; }
+  .twist-text {
+    font-size: 34px; font-weight: 800; line-height: 1.2;
+    color: #fff; max-width: 720px; margin: 0 auto;
+    text-shadow: 0 3px 0 rgba(0,0,0,0.25);
+  }
+  .twist-hint { margin-top: 22px; color: #fff; opacity: 0.8; font-size: 16px; }
 
   /* EXPLODED */
   #exploded { background: var(--danger); }
@@ -159,6 +185,7 @@
     <div class="topbar">
       <span id="round-indicator">Ronde 1 / 5</span>
       <span class="fuse" id="fuse">💣</span>
+      <span class="bonus-badge" id="bonus-badge">⚡ ×2 BOEM</span>
       <span id="score-indicator"></span>
     </div>
     <button class="pass-btn" onclick="pass()">
@@ -167,6 +194,14 @@
       <div class="theme-tag" id="cat-theme">Robbin's thema</div>
     </button>
     <div class="pass-hint">Tik om door te geven ➜</div>
+  </div>
+
+  <!-- TWIST -->
+  <div class="screen" id="twist">
+    <div class="twist-banner">🎭 Plot Twist!</div>
+    <div class="twist-emoji" id="twist-emoji">🔁</div>
+    <div class="twist-text" id="twist-text">—</div>
+    <div class="twist-hint">De bom blijft tikken... ⏱️</div>
   </div>
 
   <!-- EXPLODED -->
@@ -265,6 +300,21 @@ const CATEGORIES = [
   { theme: "Jansen-huis", emoji: "🎂", prompt: "Noem iets dat je bij een verjaardag eet" },
 ];
 
+const TWISTS = [
+  { emoji: "🔁", text: "RUILEN! Geef de bom direct aan {OTHER}." },
+  { emoji: "🤐", text: "FLUISTERTIJD! Fluister je volgende antwoord." },
+  { emoji: "🎤", text: "KOOR! Iedereen aan tafel: roep één antwoord, dan pas doorgeven." },
+  { emoji: "🦘", text: "Sla {OTHER} de hele ronde over!" },
+  { emoji: "🐒", text: "PAPEGAAI! Herhaal het vorige antwoord, dan pas een nieuwe geven." },
+  { emoji: "🎭", text: "Geef je volgende antwoord met een raar accent." },
+  { emoji: "🤲", text: "Houd de bom met TWEE handen vast tot je doorgeeft." },
+  { emoji: "🗣️", text: "{OTHER} geeft het volgende antwoord, niet jij!" },
+  { emoji: "🔄", text: "Draai 1x rond op je stoel voor je doorgeeft." },
+  { emoji: "💥", text: "SUPER BOEM! De volgende ontploffing telt voor 2 punten.", kind: "double" },
+  { emoji: "🎲", text: "VERDUBBELEN! Wie de bom heeft moet 2 antwoorden geven, dan pas doorgeven." },
+  { emoji: "🤝", text: "{OTHER} en jij beslissen samen het antwoord." },
+];
+
 const FORFEITS = [
   "Doe een F1-commentator-imitatie van 10 seconden.",
   "Zing één couplet van je favoriete Disney-lied.",
@@ -287,8 +337,13 @@ let roundNum = 0;
 let bombTimer = null;
 let tickTimer = null;
 let lastCategoryIdx = -1;
+let lastTwistIdx = -1;
 let bombDeadline = 0;
 let audioCtx = null;
+let bombMultiplier = 1;
+let passesSinceTwist = 0;
+let twistedThisRound = false;
+let twistDismissTimer = null;
 
 /* -------- AUDIO -------- */
 
@@ -335,6 +390,23 @@ function playBoom() {
   gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
   noise.connect(filter).connect(gain).connect(audioCtx.destination);
   noise.start(now);
+}
+
+function playTwistDing() {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "triangle";
+    osc.frequency.value = freq;
+    const start = now + i * 0.06;
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.18, start + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(start); osc.stop(start + 0.25);
+  });
 }
 
 /* -------- SCREENS -------- */
@@ -385,6 +457,10 @@ function flashFuse(urgent) {
 
 function startRound() {
   roundNum += 1;
+  bombMultiplier = 1;
+  passesSinceTwist = 0;
+  twistedThisRound = false;
+  document.getElementById("bonus-badge").classList.remove("active");
   renderCategory();
   renderTopbar();
   show("playing");
@@ -412,12 +488,52 @@ function startRound() {
   bombTimer = setTimeout(explode, duration + 50);
 }
 
+function pickTwist() {
+  let idx;
+  do { idx = Math.floor(Math.random() * TWISTS.length); }
+  while (idx === lastTwistIdx && TWISTS.length > 1);
+  lastTwistIdx = idx;
+  return TWISTS[idx];
+}
+
 function pass() {
+  passesSinceTwist += 1;
+  // Allow at most 1 twist per round, with a small warmup so it can't trigger on the first pass.
+  if (!twistedThisRound && passesSinceTwist >= 2 && Math.random() < 0.18) {
+    triggerTwist();
+    return;
+  }
   renderCategory();
 }
 
+function triggerTwist() {
+  twistedThisRound = true;
+  passesSinceTwist = 0;
+  const t = pickTwist();
+  let other;
+  do { other = PLAYERS[Math.floor(Math.random() * PLAYERS.length)]; } while (false);
+  const text = t.text.replace("{OTHER}", other);
+  document.getElementById("twist-emoji").textContent = t.emoji;
+  document.getElementById("twist-text").textContent = text;
+  if (t.kind === "double") {
+    bombMultiplier = 2;
+    document.getElementById("bonus-badge").classList.add("active");
+  }
+  if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+  playTwistDing();
+  show("twist");
+  clearTimeout(twistDismissTimer);
+  twistDismissTimer = setTimeout(() => {
+    // Only return to playing if the bomb hasn't gone off in the meantime.
+    if (document.getElementById("twist").classList.contains("active")) {
+      renderCategory();
+      show("playing");
+    }
+  }, 3200);
+}
+
 function explode() {
-  clearTimeout(bombTimer); clearTimeout(tickTimer);
+  clearTimeout(bombTimer); clearTimeout(tickTimer); clearTimeout(twistDismissTimer);
   bombTimer = null; tickTimer = null;
   if (navigator.vibrate) navigator.vibrate([300, 80, 400]);
   playBoom();
@@ -425,7 +541,7 @@ function explode() {
   grid.innerHTML = "";
   PLAYERS.forEach(p => {
     const b = document.createElement("button");
-    b.textContent = p;
+    b.textContent = p + (bombMultiplier > 1 ? ` (×${bombMultiplier})` : "");
     b.onclick = () => registerBomb(p);
     grid.appendChild(b);
   });
@@ -433,10 +549,12 @@ function explode() {
 }
 
 function registerBomb(player) {
-  scores[player] += 1;
+  const points = bombMultiplier;
+  scores[player] += points;
   renderMidBoard("mid-board", false);
+  const suffix = points > 1 ? ` kreeg ${points} bommen! 💥💥` : " kreeg de bom!";
   document.getElementById("mid-title").textContent =
-    roundNum >= TOTAL_ROUNDS ? "Eindstand komt eraan..." : `${player} kreeg de bom!`;
+    roundNum >= TOTAL_ROUNDS ? "Eindstand komt eraan..." : `${player}${suffix}`;
   show("mid-score");
 
   let count = 3;
