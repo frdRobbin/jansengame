@@ -1,6 +1,6 @@
 # Jansen Familie Bom
 
-Een custom Dutch party game voor Melvin, Annette, Natalie, Danny, Svea & Robbin — telefoon in het midden van de tafel, 10–15 minuten, bom-doorgeef-mechaniek met persoonlijke categorieën (F1, shoppen, achtbanen, wandelen, games, films, coding, Jansen-huis).
+Een custom Dutch party game voor Melvin, Annette, Nathalie, Danny, Svea & Robbin — telefoon in het midden van de tafel, 10–15 minuten, bom-doorgeef-mechaniek met persoonlijke categorieën (F1, shoppen, achtbanen, wandelen, games, films, coding, Jansen-huis).
 
 ## Openen op je telefoon
 
