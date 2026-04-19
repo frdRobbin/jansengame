@@ -88,8 +88,11 @@
   .topbar {
     padding: 14px 18px;
     display: flex; justify-content: space-between; align-items: center;
-    font-size: 14px; color: var(--muted);
+    font-size: 14px; color: var(--muted); gap: 10px;
   }
+  .fuse { font-size: 22px; display: inline-block; transform: scale(1); transition: transform 0.06s ease-out, filter 0.06s ease-out; }
+  .fuse.tick { transform: scale(1.6); filter: drop-shadow(0 0 6px var(--accent)); }
+  .fuse.urgent { color: var(--danger); }
 
   /* EXPLODED */
   #exploded { background: var(--danger); }
@@ -155,6 +158,7 @@
   <div class="screen" id="playing">
     <div class="topbar">
       <span id="round-indicator">Ronde 1 / 5</span>
+      <span class="fuse" id="fuse">💣</span>
       <span id="score-indicator"></span>
     </div>
     <button class="pass-btn" onclick="pass()">
@@ -371,12 +375,22 @@ function renderTopbar() {
     entries.length ? entries.map(([p,v]) => `${p.slice(0,3)} ${v}💥`).join("  ") : "geen bommen nog";
 }
 
+function flashFuse(urgent) {
+  const fuse = document.getElementById("fuse");
+  if (!fuse) return;
+  fuse.classList.toggle("urgent", !!urgent);
+  fuse.classList.add("tick");
+  setTimeout(() => fuse.classList.remove("tick"), 90);
+}
+
 function startRound() {
   roundNum += 1;
   renderCategory();
   renderTopbar();
   show("playing");
   document.getElementById("playing").classList.remove("pulse");
+  const fuse = document.getElementById("fuse");
+  if (fuse) fuse.classList.remove("urgent", "tick");
 
   const duration = 15000 + Math.floor(Math.random() * 15000); // 15-30 s
   bombDeadline = Date.now() + duration;
@@ -388,6 +402,7 @@ function startRound() {
     if (urgent && !document.getElementById("playing").classList.contains("pulse")) {
       document.getElementById("playing").classList.add("pulse");
     }
+    flashFuse(urgent);
     playTick(urgent);
     const interval = urgent ? 180 : (remaining < 10000 ? 320 : 500);
     tickTimer = setTimeout(doTick, interval);
