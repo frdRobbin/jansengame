@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#111">
+<title>Jansen Familie Bom</title>
+<style>
+  :root {
+    --bg: #121418;
+    --fg: #f5f5f5;
+    --accent: #ff6b3d;
+    --danger: #ff3b30;
+    --muted: #8a8f9a;
+    --card: #1c1f26;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%; width: 100%;
+    background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    user-select: none; -webkit-user-select: none;
+    overscroll-behavior: none;
+  }
+  #app {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .screen {
+    flex: 1; display: none;
+    flex-direction: column; align-items: stretch; justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  h1 { font-size: 44px; margin: 0 0 16px; letter-spacing: -0.02em; }
+  h2 { font-size: 32px; margin: 0 0 12px; }
+  p  { font-size: 18px; color: var(--muted); line-height: 1.4; margin: 6px 0; }
+  button {
+    font: inherit; color: inherit;
+    background: var(--accent); border: none; border-radius: 18px;
+    padding: 22px 28px; font-size: 24px; font-weight: 700;
+    cursor: pointer; touch-action: manipulation;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.35);
+  }
+  button:active { transform: translateY(2px); box-shadow: 0 4px 0 rgba(0,0,0,0.35); }
+  button.secondary { background: var(--card); color: var(--fg); font-size: 18px; padding: 14px 20px; box-shadow: none; border: 1px solid #2a2f3a; }
+  .rules { background: var(--card); border-radius: 16px; padding: 18px 20px; margin: 18px auto; max-width: 560px; text-align: left; }
+  .rules li { margin: 6px 0; color: var(--fg); font-size: 16px; }
+
+  /* PLAYING */
+  #playing {
+    background: var(--bg);
+    justify-content: space-between;
+    padding: 0;
+  }
+  #playing.pulse { animation: pulse 0.6s infinite; }
+  @keyframes pulse {
+    0%, 100% { background: var(--bg); }
+    50% { background: #2a1612; }
+  }
+  .pass-btn {
+    flex: 1;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: transparent; color: var(--fg);
+    border: none; border-radius: 0; box-shadow: none;
+    padding: 32px 20px;
+    width: 100%;
+  }
+  .pass-btn:active { background: #181b22; transform: none; box-shadow: none; }
+  .category-emoji { font-size: 96px; line-height: 1; margin-bottom: 16px; }
+  .category-text {
+    font-size: 44px; font-weight: 800; line-height: 1.15;
+    max-width: 720px;
+    letter-spacing: -0.01em;
+  }
+  .theme-tag {
+    margin-top: 18px;
+    font-size: 16px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .pass-hint {
+    padding: 20px;
+    font-size: 22px; color: var(--accent); font-weight: 700;
+  }
+  .topbar {
+    padding: 14px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; color: var(--muted);
+  }
+
+  /* EXPLODED */
+  #exploded { background: var(--danger); }
+  #exploded .boom { font-size: 120px; line-height: 1; margin-bottom: 12px; }
+  #exploded h1 { font-size: 72px; color: #fff; text-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+  #exploded p { color: #fff; font-size: 22px; }
+  .who-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-top: 22px;
+  }
+  .who-grid button { background: #fff; color: var(--danger); padding: 18px 10px; font-size: 20px; box-shadow: 0 6px 0 rgba(0,0,0,0.25); }
+
+  /* SCOREBOARD */
+  .scoreboard { max-width: 520px; margin: 12px auto; width: 100%; }
+  .score-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px; margin: 8px 0;
+    background: var(--card); border-radius: 14px;
+    font-size: 20px;
+  }
+  .score-row .bombs { font-weight: 700; color: var(--accent); }
+  .loser-row { background: #3a1813; border: 2px solid var(--danger); }
+
+  /* END */
+  .forfeit {
+    background: var(--card); border-radius: 18px; padding: 20px;
+    margin: 18px auto; max-width: 560px; font-size: 22px; line-height: 1.35;
+  }
+  .loser-name { font-size: 40px; color: var(--accent); font-weight: 800; margin: 8px 0; }
+
+  .countdown { font-size: 18px; color: var(--muted); margin-top: 10px; }
+
+  @media (max-width: 400px) {
+    h1 { font-size: 36px; }
+    .category-emoji { font-size: 72px; }
+    .category-text { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TITEL -->
+  <div class="screen active" id="title">
+    <h1>💣 Jansen Familie Bom</h1>
+    <p>Voor Melvin, Annette, Natalie, Danny, Svea & Robbin</p>
+    <div class="rules">
+      <p style="color:var(--fg);font-weight:700;margin:0 0 8px">Zo speel je:</p>
+      <ul>
+        <li>Leg de telefoon in het midden van de tafel.</li>
+        <li>Je ziet een categorie (bv. <em>Noem een F1-coureur</em>).</li>
+        <li>Wie de telefoon heeft: noem snel iets dat past en tik op het scherm om door te geven.</li>
+        <li>Er tikt een verborgen bom tussen 15 en 30 seconden.</li>
+        <li>Wie de bom vasthoudt als 'ie ontploft: krijgt een bompunt 💥</li>
+        <li>Na 5 bommen: de "winnaar" met de meeste bompunten krijgt een straf-opdracht.</li>
+      </ul>
+    </div>
+    <button onclick="startGame()">Start het spel</button>
+    <p class="countdown">Zet je telefoon-geluid aan 🔊</p>
+  </div>
+
+  <!-- PLAYING -->
+  <div class="screen" id="playing">
+    <div class="topbar">
+      <span id="round-indicator">Ronde 1 / 5</span>
+      <span id="score-indicator"></span>
+    </div>
+    <button class="pass-btn" onclick="pass()">
+      <div class="category-emoji" id="cat-emoji">🎢</div>
+      <div class="category-text" id="cat-text">Noem een achtbaan</div>
+      <div class="theme-tag" id="cat-theme">Robbin's thema</div>
+    </button>
+    <div class="pass-hint">Tik om door te geven ➜</div>
+  </div>
+
+  <!-- EXPLODED -->
+  <div class="screen" id="exploded">
+    <div class="boom">💥</div>
+    <h1>BOEM!</h1>
+    <p>Wie had de bom in z'n handen?</p>
+    <div class="who-grid" id="who-grid"></div>
+  </div>
+
+  <!-- SCOREBOARD (tussenstand) -->
+  <div class="screen" id="mid-score">
+    <h2 id="mid-title">Tussenstand</h2>
+    <div class="scoreboard" id="mid-board"></div>
+    <p class="countdown" id="next-countdown">Volgende ronde over 3...</p>
+  </div>
+
+  <!-- EINDE -->
+  <div class="screen" id="end">
+    <h1>🏆 Einde van het spel</h1>
+    <p>De bom-magneet van vanavond is...</p>
+    <div class="loser-name" id="loser-name">—</div>
+    <div class="scoreboard" id="end-board"></div>
+    <div class="forfeit" id="forfeit">—</div>
+    <button onclick="resetGame()">Nog een potje</button>
+  </div>
+
+</div>
+
+<script>
+/* -------- DATA -------- */
+
+const PLAYERS = ["Melvin", "Annette", "Natalie", "Danny", "Svea", "Robbin"];
+
+const CATEGORIES = [
+  // Melvin — F1
+  { theme: "Melvin", emoji: "🏎️", prompt: "Noem een F1-coureur" },
+  { theme: "Melvin", emoji: "🏁", prompt: "Noem een F1-circuit" },
+  { theme: "Melvin", emoji: "🏎️", prompt: "Noem een F1-team" },
+  { theme: "Melvin", emoji: "🏆", prompt: "Noem een F1-wereldkampioen" },
+  { theme: "Melvin", emoji: "🌍", prompt: "Noem een land waar F1 wordt gereden" },
+  { theme: "Melvin", emoji: "🔧", prompt: "Noem een onderdeel van een F1-auto" },
+
+  // Annette — shoppen
+  { theme: "Annette", emoji: "🛍️", prompt: "Noem een Nederlandse winkelketen" },
+  { theme: "Annette", emoji: "👗", prompt: "Noem een kledingmerk" },
+  { theme: "Annette", emoji: "🧦", prompt: "Noem iets dat je bij de HEMA koopt" },
+  { theme: "Annette", emoji: "💐", prompt: "Noem een parfum- of geurmerk" },
+  { theme: "Annette", emoji: "🏬", prompt: "Noem een winkelstraat in Nederland" },
+  { theme: "Annette", emoji: "💳", prompt: "Noem iets dat Annette wél koopt en Melvin niet" },
+
+  // Robbin — achtbanen & auto's
+  { theme: "Robbin", emoji: "🎢", prompt: "Noem een achtbaan" },
+  { theme: "Robbin", emoji: "🎡", prompt: "Noem een attractiepark" },
+  { theme: "Robbin", emoji: "🚗", prompt: "Noem een automerk" },
+  { theme: "Robbin", emoji: "🏎️", prompt: "Noem een sportwagen" },
+  { theme: "Robbin", emoji: "🧚", prompt: "Noem iets uit de Efteling" },
+  { theme: "Robbin", emoji: "⛽", prompt: "Noem iets dat bij een road-trip hoort" },
+
+  // Svea — wandelen & natuur
+  { theme: "Svea", emoji: "🥾", prompt: "Noem een Nederlands natuurgebied" },
+  { theme: "Svea", emoji: "🏔️", prompt: "Noem een bergketen" },
+  { theme: "Svea", emoji: "🦌", prompt: "Noem een bosdier" },
+  { theme: "Svea", emoji: "🎒", prompt: "Noem iets dat je meeneemt op een wandeling" },
+  { theme: "Svea", emoji: "🌲", prompt: "Noem een Europees nationaal park" },
+  { theme: "Svea", emoji: "🌸", prompt: "Noem een bloem of plant" },
+
+  // Danny & Natalie — games
+  { theme: "Danny & Natalie", emoji: "🎮", prompt: "Noem een video game" },
+  { theme: "Danny & Natalie", emoji: "🍄", prompt: "Noem een Nintendo-personage" },
+  { theme: "Danny & Natalie", emoji: "🕹️", prompt: "Noem een spelcomputer" },
+  { theme: "Danny & Natalie", emoji: "⚡", prompt: "Noem een Pokémon" },
+  { theme: "Danny & Natalie", emoji: "🏢", prompt: "Noem een game-studio of -uitgever" },
+  { theme: "Danny & Natalie", emoji: "🎯", prompt: "Noem een shooter-game" },
+
+  // Natalie — films
+  { theme: "Natalie", emoji: "🏰", prompt: "Noem een Disney-film" },
+  { theme: "Natalie", emoji: "🦸", prompt: "Noem een Marvel-held" },
+  { theme: "Natalie", emoji: "🕶️", prompt: "Noem een film met Tom Cruise" },
+  { theme: "Natalie", emoji: "👻", prompt: "Noem een horror-film" },
+  { theme: "Natalie", emoji: "🏆", prompt: "Noem een Oscar-winnende film" },
+  { theme: "Natalie", emoji: "🎬", prompt: "Noem een film uit de jaren '90" },
+
+  // Danny — coding
+  { theme: "Danny", emoji: "💻", prompt: "Noem een programmeertaal" },
+  { theme: "Danny", emoji: "🏢", prompt: "Noem een tech-bedrijf" },
+  { theme: "Danny", emoji: "📱", prompt: "Noem een app op je telefoon" },
+  { theme: "Danny", emoji: "🤖", prompt: "Noem iets wat je met AI kunt doen" },
+
+  // Jansen-huis
+  { theme: "Jansen-huis", emoji: "🍖", prompt: "Noem iets wat bij een Jansen-BBQ op tafel komt" },
+  { theme: "Jansen-huis", emoji: "✈️", prompt: "Noem een plek waar jullie op vakantie zijn geweest" },
+  { theme: "Jansen-huis", emoji: "💬", prompt: "Noem iets dat Melvin altijd zegt" },
+  { theme: "Jansen-huis", emoji: "🏘️", prompt: "Noem een dorp in de buurt van Nieuw-Vennep" },
+  { theme: "Jansen-huis", emoji: "🧀", prompt: "Noem een typisch Nederlands gerecht" },
+  { theme: "Jansen-huis", emoji: "🎂", prompt: "Noem iets dat je bij een verjaardag eet" },
+];
+
+const FORFEITS = [
+  "Doe een F1-commentator-imitatie van 10 seconden.",
+  "Zing één couplet van je favoriete Disney-lied.",
+  "Imiteer een achtbaan-rit mét geluid.",
+  "Geef iedereen aan tafel een eerlijk compliment.",
+  "Beschrijf je ideale dag in één zin per familielid.",
+  "Doe een Pokémon-aanval na (inclusief roep).",
+  "Beschrijf je outfit alsof je het op Marktplaats verkoopt.",
+  "Doe drie squats en roep bij elke squat een automerk.",
+  "Vertel een anekdote uit je jeugd in 30 seconden.",
+  "Rap 10 seconden lang over boodschappen doen.",
+];
+
+const TOTAL_ROUNDS = 5;
+
+/* -------- STATE -------- */
+
+let scores = Object.fromEntries(PLAYERS.map(p => [p, 0]));
+let roundNum = 0;
+let bombTimer = null;
+let tickTimer = null;
+let lastCategoryIdx = -1;
+let bombDeadline = 0;
+let audioCtx = null;
+
+/* -------- AUDIO -------- */
+
+function ensureAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+}
+
+function playTick(highPitch) {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "square";
+  osc.frequency.value = highPitch ? 1200 : 800;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.2, now + 0.005);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(now); osc.stop(now + 0.08);
+}
+
+function playBoom() {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const duration = 1.2;
+  const bufferSize = Math.floor(audioCtx.sampleRate * duration);
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    const t = i / bufferSize;
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.2);
+  }
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buffer;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(1800, now);
+  filter.frequency.exponentialRampToValueAtTime(80, now + duration);
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0.9, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+  noise.connect(filter).connect(gain).connect(audioCtx.destination);
+  noise.start(now);
+}
+
+/* -------- SCREENS -------- */
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* -------- FLOW -------- */
+
+function startGame() {
+  ensureAudio();
+  scores = Object.fromEntries(PLAYERS.map(p => [p, 0]));
+  roundNum = 0;
+  startRound();
+}
+
+function pickCategory() {
+  let idx;
+  do { idx = Math.floor(Math.random() * CATEGORIES.length); }
+  while (idx === lastCategoryIdx && CATEGORIES.length > 1);
+  lastCategoryIdx = idx;
+  return CATEGORIES[idx];
+}
+
+function renderCategory() {
+  const cat = pickCategory();
+  document.getElementById("cat-emoji").textContent = cat.emoji;
+  document.getElementById("cat-text").textContent = cat.prompt;
+  document.getElementById("cat-theme").textContent = cat.theme + "'s thema";
+}
+
+function renderTopbar() {
+  document.getElementById("round-indicator").textContent = `Ronde ${roundNum} / ${TOTAL_ROUNDS}`;
+  const entries = Object.entries(scores).filter(([,v]) => v > 0);
+  document.getElementById("score-indicator").textContent =
+    entries.length ? entries.map(([p,v]) => `${p.slice(0,3)} ${v}💥`).join("  ") : "geen bommen nog";
+}
+
+function startRound() {
+  roundNum += 1;
+  renderCategory();
+  renderTopbar();
+  show("playing");
+  document.getElementById("playing").classList.remove("pulse");
+
+  const duration = 15000 + Math.floor(Math.random() * 15000); // 15-30 s
+  bombDeadline = Date.now() + duration;
+
+  const doTick = () => {
+    const remaining = bombDeadline - Date.now();
+    if (remaining <= 0) { explode(); return; }
+    const urgent = remaining < 5000;
+    if (urgent && !document.getElementById("playing").classList.contains("pulse")) {
+      document.getElementById("playing").classList.add("pulse");
+    }
+    playTick(urgent);
+    const interval = urgent ? 180 : (remaining < 10000 ? 320 : 500);
+    tickTimer = setTimeout(doTick, interval);
+  };
+  tickTimer = setTimeout(doTick, 400);
+
+  bombTimer = setTimeout(explode, duration + 50);
+}
+
+function pass() {
+  renderCategory();
+}
+
+function explode() {
+  clearTimeout(bombTimer); clearTimeout(tickTimer);
+  bombTimer = null; tickTimer = null;
+  if (navigator.vibrate) navigator.vibrate([300, 80, 400]);
+  playBoom();
+  const grid = document.getElementById("who-grid");
+  grid.innerHTML = "";
+  PLAYERS.forEach(p => {
+    const b = document.createElement("button");
+    b.textContent = p;
+    b.onclick = () => registerBomb(p);
+    grid.appendChild(b);
+  });
+  show("exploded");
+}
+
+function registerBomb(player) {
+  scores[player] += 1;
+  renderMidBoard("mid-board", false);
+  document.getElementById("mid-title").textContent =
+    roundNum >= TOTAL_ROUNDS ? "Eindstand komt eraan..." : `${player} kreeg de bom!`;
+  show("mid-score");
+
+  let count = 3;
+  const cd = document.getElementById("next-countdown");
+  cd.textContent = `Volgende ronde over ${count}...`;
+  const ticker = setInterval(() => {
+    count -= 1;
+    if (count <= 0) {
+      clearInterval(ticker);
+      if (roundNum >= TOTAL_ROUNDS) showEnd();
+      else startRound();
+    } else {
+      cd.textContent = `Volgende ronde over ${count}...`;
+    }
+  }, 1000);
+}
+
+function renderMidBoard(elId, final) {
+  const ordered = PLAYERS.slice().sort((a,b) => scores[b] - scores[a]);
+  const maxScore = Math.max(...Object.values(scores));
+  const el = document.getElementById(elId);
+  el.innerHTML = "";
+  ordered.forEach(p => {
+    const row = document.createElement("div");
+    row.className = "score-row" + (final && scores[p] === maxScore && maxScore > 0 ? " loser-row" : "");
+    row.innerHTML = `<span>${p}</span><span class="bombs">${"💥".repeat(scores[p]) || "—"}</span>`;
+    el.appendChild(row);
+  });
+}
+
+function showEnd() {
+  renderMidBoard("end-board", true);
+  const maxScore = Math.max(...Object.values(scores));
+  const losers = PLAYERS.filter(p => scores[p] === maxScore);
+  document.getElementById("loser-name").textContent =
+    maxScore === 0 ? "Niemand! Goed gepast 🎉" : losers.join(" & ");
+  const forfeit = FORFEITS[Math.floor(Math.random() * FORFEITS.length)];
+  document.getElementById("forfeit").textContent =
+    maxScore === 0 ? "Geen straf nodig. Nog een potje?" : `Straf-opdracht: ${forfeit}`;
+  show("end");
+}
+
+function resetGame() {
+  startGame();
+}
+
+/* Prevent iOS bounce and accidental zoom */
+document.addEventListener("gesturestart", e => e.preventDefault());
+document.addEventListener("touchmove", e => { if (e.scale && e.scale !== 1) e.preventDefault(); }, { passive: false });
+</script>
+</body>
+</html>
