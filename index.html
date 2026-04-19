@@ -197,11 +197,11 @@
   </div>
 
   <!-- TWIST -->
-  <div class="screen" id="twist">
+  <div class="screen" id="twist" onclick="dismissTwist()">
     <div class="twist-banner">🎭 Plot Twist!</div>
     <div class="twist-emoji" id="twist-emoji">🔁</div>
     <div class="twist-text" id="twist-text">—</div>
-    <div class="twist-hint">De bom blijft tikken... ⏱️</div>
+    <div class="twist-hint">⏸️ Bom gepauzeerd — tik om verder te gaan</div>
   </div>
 
   <!-- EXPLODED -->
@@ -344,6 +344,7 @@ let bombMultiplier = 1;
 let passesSinceTwist = 0;
 let twistedThisRound = false;
 let twistDismissTimer = null;
+let twistPauseRemaining = 0;
 
 /* -------- AUDIO -------- */
 
@@ -392,20 +393,39 @@ function playBoom() {
   noise.start(now);
 }
 
-function playTwistDing() {
+function playTwistSting() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
-  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+  // Classic "DUN DUN DUUUN" — three descending notes with a bass thump.
+  const notes = [
+    { freq: 261.63, start: 0.00, dur: 0.34, gain: 0.25 }, // C4
+    { freq: 233.08, start: 0.34, dur: 0.34, gain: 0.27 }, // A#3/Bb3
+    { freq: 196.00, start: 0.72, dur: 1.40, gain: 0.30 }, // G3 (sustained)
+  ];
+  notes.forEach(n => {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = "triangle";
-    osc.frequency.value = freq;
-    const start = now + i * 0.06;
-    gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(0.18, start + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
+    osc.type = "sawtooth";
+    osc.frequency.value = n.freq;
+    const t = now + n.start;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(n.gain, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + n.dur);
     osc.connect(gain).connect(audioCtx.destination);
-    osc.start(start); osc.stop(start + 0.25);
+    osc.start(t); osc.stop(t + n.dur + 0.05);
+  });
+  // Bass sub-thump under each note.
+  notes.forEach(n => {
+    const sub = audioCtx.createOscillator();
+    const subGain = audioCtx.createGain();
+    sub.type = "sine";
+    sub.frequency.value = n.freq / 2;
+    const t = now + n.start;
+    subGain.gain.setValueAtTime(0.0001, t);
+    subGain.gain.exponentialRampToValueAtTime(0.35, t + 0.015);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, t + n.dur);
+    sub.connect(subGain).connect(audioCtx.destination);
+    sub.start(t); sub.stop(t + n.dur + 0.05);
   });
 }
 
@@ -470,22 +490,25 @@ function startRound() {
 
   const duration = 30000 + Math.floor(Math.random() * 30000); // 30-60 s
   bombDeadline = Date.now() + duration;
+  scheduleBombTimers(duration);
+}
 
+function scheduleBombTimers(remaining) {
+  clearTimeout(tickTimer); clearTimeout(bombTimer);
   const doTick = () => {
-    const remaining = bombDeadline - Date.now();
-    if (remaining <= 0) { explode(); return; }
-    const urgent = remaining < 5000;
+    const left = bombDeadline - Date.now();
+    if (left <= 0) { explode(); return; }
+    const urgent = left < 5000;
     if (urgent && !document.getElementById("playing").classList.contains("pulse")) {
       document.getElementById("playing").classList.add("pulse");
     }
     flashFuse(urgent);
     playTick(urgent);
-    const interval = urgent ? 180 : (remaining < 10000 ? 320 : 500);
+    const interval = urgent ? 180 : (left < 10000 ? 320 : 500);
     tickTimer = setTimeout(doTick, interval);
   };
   tickTimer = setTimeout(doTick, 400);
-
-  bombTimer = setTimeout(explode, duration + 50);
+  bombTimer = setTimeout(explode, remaining + 50);
 }
 
 function pickTwist() {
@@ -510,8 +533,7 @@ function triggerTwist() {
   twistedThisRound = true;
   passesSinceTwist = 0;
   const t = pickTwist();
-  let other;
-  do { other = PLAYERS[Math.floor(Math.random() * PLAYERS.length)]; } while (false);
+  const other = PLAYERS[Math.floor(Math.random() * PLAYERS.length)];
   const text = t.text.replace("{OTHER}", other);
   document.getElementById("twist-emoji").textContent = t.emoji;
   document.getElementById("twist-text").textContent = text;
@@ -519,17 +541,29 @@ function triggerTwist() {
     bombMultiplier = 2;
     document.getElementById("bonus-badge").classList.add("active");
   }
-  if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
-  playTwistDing();
+  // Pause the bomb so there's time to read and react.
+  twistPauseRemaining = Math.max(3000, bombDeadline - Date.now());
+  clearTimeout(bombTimer); clearTimeout(tickTimer);
+  bombTimer = null; tickTimer = null;
+  document.getElementById("playing").classList.remove("pulse");
+  const fuse = document.getElementById("fuse");
+  if (fuse) fuse.classList.remove("urgent", "tick");
+  if (navigator.vibrate) navigator.vibrate([90, 60, 90, 60, 180]);
+  playTwistSting();
   show("twist");
   clearTimeout(twistDismissTimer);
-  twistDismissTimer = setTimeout(() => {
-    // Only return to playing if the bomb hasn't gone off in the meantime.
-    if (document.getElementById("twist").classList.contains("active")) {
-      renderCategory();
-      show("playing");
-    }
-  }, 3200);
+  // Auto-dismiss fallback in case nobody taps.
+  twistDismissTimer = setTimeout(dismissTwist, 7000);
+}
+
+function dismissTwist() {
+  clearTimeout(twistDismissTimer);
+  if (!document.getElementById("twist").classList.contains("active")) return;
+  // Resume the bomb from where it was paused.
+  bombDeadline = Date.now() + twistPauseRemaining;
+  renderCategory();
+  show("playing");
+  scheduleBombTimers(twistPauseRemaining);
 }
 
 function explode() {
